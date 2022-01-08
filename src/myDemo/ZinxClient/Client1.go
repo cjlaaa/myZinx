@@ -10,7 +10,7 @@ import (
 
 //模拟客户端
 func main() {
-	fmt.Println("client start...")
+	fmt.Println("client1 start...")
 
 	time.Sleep(1 * time.Second)
 	//1直接连接远程服务器,得到一个conn连接
@@ -38,7 +38,7 @@ func main() {
 
 		//发送封包的message消息
 		dp := znet.NewDataPack()
-		binaryMsg, err := dp.Pack(znet.NewMsgPackage(0, []byte("ZinxV0.5 client Test Message")))
+		binaryMsg, err := dp.Pack(znet.NewMsgPackage(0, []byte("Zinx client Test Message")))
 		if err != nil {
 			fmt.Println("Pack error:", err)
 			return
