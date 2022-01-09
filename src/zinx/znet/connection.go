@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"zinx/utils"
 	"zinx/ziface"
 )
 
@@ -26,18 +27,18 @@ type Connection struct {
 	msgChan chan []byte
 
 	//消息的管理MsgID和对应的处理业务API关系
-	MsgHandle ziface.IMsgHandle
+	MsgHandler ziface.IMsgHandle
 }
 
 //初始化连接模块的方法
 func NewConnection(conn *net.TCPConn, connID uint32, msgHandler ziface.IMsgHandle) *Connection {
 	c := &Connection{
-		Conn:      conn,
-		ConnID:    connID,
-		MsgHandle: msgHandler,
-		isClosed:  false,
-		msgChan:   make(chan []byte),
-		ExitChan:  make(chan bool, 1),
+		Conn:       conn,
+		ConnID:     connID,
+		MsgHandler: msgHandler,
+		isClosed:   false,
+		msgChan:    make(chan []byte),
+		ExitChan:   make(chan bool, 1),
 	}
 
 	return c
@@ -83,9 +84,15 @@ func (c *Connection) StartReader() {
 			msg:  msg,
 		}
 
-		//从路由中,找到注册绑定的Conn对应的router调用
-		//根据绑定好的MsgID找到对应处理api业务执行
-		go c.MsgHandle.DoMsgHandler(&req)
+		if utils.GlobalObject.WorkerPoolSize > 0 {
+			//已经开启了工作池机制,将消息发送给Worker工作池处理即可
+			c.MsgHandler.SendMsgToTaskQueue(&req)
+		} else {
+			//从路由中,找到注册绑定的Conn对应的router调用
+			//根据绑定好的MsgID找到对应处理api业务执行
+			go c.MsgHandler.DoMsgHandler(&req)
+		}
+
 	}
 }
 
