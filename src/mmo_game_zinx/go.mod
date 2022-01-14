@@ -3,10 +3,13 @@ module mmo_game_zinx
 go 1.17
 
 require (
-	"zinx" v0.0.0
-	"mmo_game_zinx" v0.0.0
+	github.com/golang/protobuf v1.5.0
+	zinx v0.0.0
 )
+
+require google.golang.org/protobuf v1.27.1 // indirect
+
 replace (
-	"zinx"  => ../zinx
-	"mmo_game_zinx" => ./
+	mmo_game_zinx => ./
+	zinx => ../zinx
 )
